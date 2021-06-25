@@ -22,6 +22,7 @@ import org.everit.json.schema.CombinedSchema;
 import org.everit.json.schema.ConditionalSchema;
 import org.everit.json.schema.ConstSchema;
 import org.everit.json.schema.EnumSchema;
+import org.everit.json.schema.ForeignKeySchema;
 import org.everit.json.schema.NotSchema;
 import org.everit.json.schema.NullSchema;
 import org.everit.json.schema.NumberSchema;
@@ -92,6 +93,9 @@ abstract class AbstractSchemaExtractor implements SchemaExtractor {
 
     static final List<String> STRING_SCHEMA_PROPS = asList("minLength", "maxLength",
             "pattern", "format");
+    
+    static final List<String> FK_SCHEMA_PROPS = asList("entityName","hardConstraint", 
+    		"required", "filter");
 
     protected JsonObject schemaJson;
 
@@ -157,6 +161,14 @@ abstract class AbstractSchemaExtractor implements SchemaExtractor {
     StringSchema.Builder buildStringSchema() {
         PropertySnifferSchemaExtractor.STRING_SCHEMA_PROPS.forEach(consumedKeys::keyConsumed);
         return new StringSchemaLoader(schemaJson.ls, config().formatValidators).load();
+    }
+    
+    ForeignKeySchema.Builder buildForeignKeySchema(){
+    	PropertySnifferSchemaExtractor.FK_SCHEMA_PROPS.forEach(consumedKeys::keyConsumed);
+    	ForeignKeySchema.Builder builder = ForeignKeySchema.builder();
+    	
+    	builder.entity(require("entity").requireString());
+    	return builder;
     }
 
     abstract List<Schema.Builder<?>> extract();
@@ -275,6 +287,8 @@ class TypeBasedSchemaExtractor extends AbstractSchemaExtractor {
             return buildArraySchema();
         case "object":
             return buildObjectSchema();
+        case "foreignKey":
+            return buildForeignKeySchema();
         default:
             throw new SchemaException(schemaJson.ls.locationOfCurrentObj(), format("unknown type: [%s]", typeString));
         }

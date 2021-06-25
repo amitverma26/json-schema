@@ -225,6 +225,11 @@ abstract class Visitor {
         visitPattern(stringSchema.getRegexpPattern());
         visitFormat(stringSchema.getFormatValidator());
     }
+    
+    /*Custom Code to add Foreign Key schema references*/
+    void visitForeignKeySchema(ForeignKeySchema foreignKeySchema) {
+    	visitSchema(foreignKeySchema);
+    }
 
     void visitFormat(FormatValidator formatValidator) {
     }

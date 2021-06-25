@@ -149,6 +149,12 @@ class ValidatingVisitor extends Visitor {
     }
 
     @Override
+    void visitForeignKeySchema(ForeignKeySchema foreignKeySchema) {
+    	foreignKeySchema.accept(new ForeignKeySchemaValidatingVisitor(subject, this));
+    	
+    }
+    
+    @Override
     void visitCombinedSchema(CombinedSchema combinedSchema) {
         Collection<Schema> subschemas = combinedSchema.getSubschemas();
         List<ValidationException> failures = new ArrayList<>(subschemas.size());
